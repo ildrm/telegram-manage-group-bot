@@ -1,0 +1,9 @@
+[
+    {
+        "name": "No PDFs",
+        "condition": {
+            "message.document.mime_type": "application\/pdf"
+        },
+        "action": "delete"
+    }
+]
