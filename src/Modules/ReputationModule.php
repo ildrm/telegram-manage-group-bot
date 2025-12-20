@@ -19,14 +19,31 @@ class ReputationModule implements PluginInterface {
         ];
     }
 
+    private function parseCommand(string $text): array {
+        $text = trim($text);
+        if ($text === '') return ['', ''];
+
+        $parts = preg_split('/\s+/', $text, 2);
+        $cmd = $parts[0] ?? '';
+        $args = $parts[1] ?? '';
+
+        if (strpos($cmd, '@') !== false) {
+            $cmd = explode('@', $cmd, 2)[0];
+        }
+
+        return [$cmd, $args];
+    }
+
     public function handleUpdate(array $update, Container $container): void {
         if (!isset($update['message']['text'])) return;
 
         $message = $update['message'];
         $text = $message['text'];
         $chatId = $message['chat']['id'];
+
+        [$cmd] = $this->parseCommand($text);
         
-        // Check for thank you or +
+        // Check for thank you or + (must be a reply)
         if (preg_match('/^(\+|thx|thanks|thank you)/i', $text)) {
             if (!isset($message['reply_to_message'])) return;
 
@@ -47,14 +64,16 @@ class ReputationModule implements PluginInterface {
             $newRep = $this->incrementReputation($toId, $db);
             
             $client->sendMessage($chatId, "📈 <b>Reputation Increased!</b>\n\n{$toUser['first_name']} now has $newRep reputation points.");
+            return;
         }
-        
+
         // Command: /myrep
-        if ($text === '/myrep') {
+        if ($cmd === '/myrep') {
             $db = $container->get(Database::class);
             $client = $container->get(Client::class);
             $rep = $this->getReputation($message['from']['id'], $db);
             $client->sendMessage($chatId, "Your reputation: <b>$rep</b>");
+            return;
         }
     }
 
@@ -69,7 +88,8 @@ class ReputationModule implements PluginInterface {
     private function getReputation(int $userId, Database $db): int {
         $stmt = $db->prepare("SELECT reputation FROM users WHERE user_id = ?");
         $stmt->bindValue(1, $userId);
-        $result = $stmt->execute()->fetchArray();
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result ? (int)$result['reputation'] : 0;
     }
 }

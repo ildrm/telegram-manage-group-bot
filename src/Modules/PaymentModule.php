@@ -18,13 +18,26 @@ class PaymentModule implements PluginInterface {
         ];
     }
 
+    private function parseCommand(string $text): string {
+        $text = trim($text);
+        if ($text === '') return '';
+
+        $cmd = preg_split('/\s+/', $text, 2)[0] ?? '';
+        if (strpos($cmd, '@') !== false) {
+            $cmd = explode('@', $cmd, 2)[0];
+        }
+        return $cmd;
+    }
+
     public function handleUpdate(array $update, Container $container): void {
         if (!isset($update['message']['text'])) return;
         $text = $update['message']['text'];
         $chatId = $update['message']['chat']['id'];
         $client = $container->get(Client::class);
 
-        if ($text === '/donate' || $text === '/subscribe') {
+        $cmd = $this->parseCommand($text);
+
+        if ($cmd === '/donate' || $cmd === '/subscribe') {
             $keyboard = [
                 'inline_keyboard' => [
                     [['text' => '💎 1 Month ($5)', 'callback_data' => 'pay:1m']],

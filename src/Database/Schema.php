@@ -125,9 +125,80 @@ class Schema {
             timestamp $int
         ");
         
+        // Statistics table
+        $dateType = $isSqlite ? $text : 'DATE';
+        if ($isSqlite) {
+            $this->createTable('stats', "
+                id $pk,
+                group_id $int,
+                event_type $text,
+                event_date $dateType,
+                count $int DEFAULT 1,
+                UNIQUE(group_id, event_type, event_date)
+            ");
+        } else {
+            // MySQL unique constraint syntax
+            $this->createTable('stats', "
+                id $pk,
+                group_id $int,
+                event_type $text,
+                event_date $dateType,
+                count $int DEFAULT 1,
+                UNIQUE KEY unique_stat (group_id, event_type, event_date)
+            ");
+        }
+        
+        // CAPTCHA sessions
+        $this->createTable('captcha_sessions', "
+            id $pk,
+            group_id $int,
+            user_id $int,
+            message_id $int,
+            answer $text,
+            created_at $int DEFAULT 0,
+            UNIQUE(group_id, user_id)
+        ");
+        
+        // Scheduled messages
+        $this->createTable('scheduled_messages', "
+            id $pk,
+            group_id $int,
+            message_text $text,
+            schedule_time $text,
+            created_at $int DEFAULT 0,
+            sent $int DEFAULT 0
+        ");
+        
+        // Custom commands
+        $this->createTable('custom_commands', "
+            id $pk,
+            group_id $int,
+            command $text,
+            response $text,
+            UNIQUE(group_id, command)
+        ");
+        
+        // Whitelist
+        $this->createTable('whitelist', "
+            group_id $int,
+            user_id $int,
+            UNIQUE(group_id, user_id)
+        ");
+        
+        // Sessions for state management
+        $this->createTable('sessions', "
+            user_id $int PRIMARY KEY,
+            state $text,
+            data $text,
+            updated_at $int DEFAULT 0
+        ");
+        
         // Indexes
         $this->createIndex('idx_group_owners', 'group_owners', 'user_id, group_id');
         $this->createIndex('idx_audit_logs', 'audit_logs', 'group_id, created_at');
+        $this->createIndex('idx_stats', 'stats', 'group_id, event_date');
+        $this->createIndex('idx_warns', 'warns', 'group_id, user_id');
+        $this->createIndex('idx_rate_limits', 'rate_limits', 'user_id, timestamp');
     }
 
     private function createTable(string $name, string $columns): void {

@@ -3,6 +3,7 @@ namespace App\Core;
 
 class Container {
     private array $services = [];
+    private array $instances = [];
 
     public function bind(string $key, callable $resolver): void {
         $this->services[$key] = $resolver;
@@ -17,16 +18,17 @@ class Container {
         return $resolver($this);
     }
     
-    // Singleton support could be added here if needed, but simple factory for now is fine
-    // actually for database we usually want singleton behavior
-    private array $instances = [];
-    
     public function singleton(string $key, callable $resolver): void {
-        $this->services[$key] = function($c) use ($resolver, $key) {
-            if (!isset($this->instances[$key])) {
-                $this->instances[$key] = $resolver($c);
+        $container = $this;
+        $this->services[$key] = function($c) use ($resolver, $key, $container) {
+            if (!isset($container->instances[$key])) {
+                $container->instances[$key] = $resolver($c);
             }
-            return $this->instances[$key];
+            return $container->instances[$key];
         };
+    }
+    
+    public function has(string $key): bool {
+        return isset($this->services[$key]);
     }
 }

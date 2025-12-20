@@ -1,0 +1,37 @@
+[2025-12-15 13:23:01] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Mashhad&count=1&language=en&format=json]: (0) Connection timed out after 5001 milliseconds
+[2025-12-15 13:23:11] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London&count=1&language=en&format=json]: (0) Connection timed out after 5016 milliseconds
+[2025-12-15 13:23:18] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Mashhad&count=1&language=en&format=json]: (0) Connection timed out after 5012 milliseconds
+[2025-12-15 13:23:28] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London&count=1&language=en&format=json]: (0) Connection timed out after 5001 milliseconds
+[2025-12-15 13:27:11] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London&count=1&language=en&format=json]: (0) Connection timed out after 10008 milliseconds
+2025-12-15 13:28:37 Call to undefined method App\Telegram\Client::editMessageText()
+2025-12-15 13:28:44 Call to undefined method App\Telegram\Client::editMessageText()
+2025-12-15 13:28:52 Call to undefined method App\Telegram\Client::editMessageText()
+2025-12-15 13:28:58 Call to undefined method App\Telegram\Client::editMessageText()
+2025-12-15 13:29:07 Call to undefined method App\Telegram\Client::editMessageText()
+[2025-12-15 13:29:33] API Error [https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,eur]: (0) Connection timed out after 10016 milliseconds
+2025-12-15 13:29:33 Call to undefined method App\Telegram\Client::editMessageText()
+2025-12-15 13:30:07 Call to undefined method App\Telegram\Client::editMessageText()
+[2025-12-15 13:30:22] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London&count=1&language=en&format=json]: (0) Connection timed out after 10006 milliseconds
+[2025-12-15 13:42:51] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London%2CUnited+Kingdom&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10006 milliseconds
+2025-12-15 13:44:06 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:44:07 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:44:09 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:44:13 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:44:22 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:44:38 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:45:10 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:46:14 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:48:15 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+2025-12-15 13:49:52 Call to undefined method App\Modules\IntegrationModule::showCryptoMenu()
+[2025-12-15 13:51:53] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London%2CUnited+Kingdom&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10006 milliseconds
+[2025-12-15 13:56:43] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London%2CUnited+Kingdom&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10004 milliseconds
+[2025-12-15 13:57:36] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London%2CUnited%2520Kingdom&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10000 milliseconds
+[2025-12-15 13:58:31] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London%2CUnited+Kingdom&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10014 milliseconds
+[2025-12-15 13:59:24] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London%2CUnited%2520Kingdom&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10002 milliseconds
+[2025-12-16 07:52:54] API Error [https://geocoding-api.open-meteo.com/v1/search?name=London&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10007 milliseconds
+[2025-12-16 08:06:31] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Tehran%2CIran&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10002 milliseconds
+[2025-12-16 09:33:39] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Tehran%2CIran&count=1&language=en&format=json] (Proxy: None): (0) Recv failure: Connection was reset
+[2025-12-16 09:34:19] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Tehran%2CIran&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10013 milliseconds
+[2025-12-16 11:05:37] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Tehran%2CIran&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10004 milliseconds
+[2025-12-16 11:11:24] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Tehran%2CIran&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10008 milliseconds
+[2025-12-18 07:12:20] API Error [https://geocoding-api.open-meteo.com/v1/search?name=Tehran%2CIran&count=1&language=en&format=json] (Proxy: None): (0) Connection timed out after 10004 milliseconds
