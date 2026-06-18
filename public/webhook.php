@@ -8,7 +8,18 @@ if (isset($_GET['cron'])) {
     try {
         $bot = new Bot();
         $container = $bot->getContainer();
-        
+        $config = $container->get(\App\Core\Config::class);
+
+        // Authenticate cron requests. If no CRON_SECRET is configured, refuse to
+        // run over HTTP (use a CLI invocation instead).
+        $cronSecret = (string)$config->get('CRON_SECRET', '');
+        $providedToken = (string)($_GET['token'] ?? '');
+        if ($cronSecret === '' || !hash_equals($cronSecret, $providedToken)) {
+            http_response_code(403);
+            echo "Forbidden";
+            exit;
+        }
+
         // Run scheduled messages and cleanup tasks
         $db = $container->get(\App\Database\Database::class);
         
@@ -52,6 +63,21 @@ if (isset($_GET['cron'])) {
 // Handle webhook updates
 try {
     $bot = new Bot();
+
+    // Validate Telegram's secret token (set via setWebhook's secret_token).
+    // When WEBHOOK_SECRET is configured, reject any request whose header does
+    // not match, preventing forged updates from arbitrary clients.
+    $config = $bot->getContainer()->get(\App\Core\Config::class);
+    $webhookSecret = (string)$config->get('WEBHOOK_SECRET', '');
+    if ($webhookSecret !== '') {
+        $headerToken = $_SERVER['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN'] ?? '';
+        if (!is_string($headerToken) || !hash_equals($webhookSecret, $headerToken)) {
+            http_response_code(403);
+            echo "Forbidden";
+            exit;
+        }
+    }
+
     $bot->run();
     http_response_code(200);
 } catch (Throwable $e) {

@@ -211,8 +211,13 @@ class AdminModule implements PluginInterface {
     }
     
     private function setRole(int $groupId, int $userId, string $role, Database $db): void {
-        $stmt = $db->prepare("INSERT INTO group_owners (group_id, user_id, role) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE role = VALUES(role)");
-        $stmt->execute([$groupId, $userId, $role]);
+        // Portable upsert: group_owners has UNIQUE(group_id, user_id)
+        $db->upsert(
+            'group_owners',
+            ['group_id' => $groupId, 'user_id' => $userId, 'role' => $role, 'added_at' => time()],
+            ['role'],
+            'group_id, user_id'
+        );
     }
     
     private function removeRole(int $groupId, int $userId, Database $db): void {

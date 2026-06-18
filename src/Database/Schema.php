@@ -121,9 +121,12 @@ class Schema {
 
         // Rate Limits (Memory table for MySQL ideally, but standard for compatibility)
         $this->createTable('rate_limits', "
+            group_id $int DEFAULT 0,
             user_id $int,
             timestamp $int
         ");
+        // Migrate older installs that pre-date the group_id column.
+        $this->addColumnIfMissing('rate_limits', 'group_id', "$int DEFAULT 0");
         
         // Statistics table
         $dateType = $isSqlite ? $text : 'DATE';
@@ -198,7 +201,27 @@ class Schema {
         $this->createIndex('idx_audit_logs', 'audit_logs', 'group_id, created_at');
         $this->createIndex('idx_stats', 'stats', 'group_id, event_date');
         $this->createIndex('idx_warns', 'warns', 'group_id, user_id');
-        $this->createIndex('idx_rate_limits', 'rate_limits', 'user_id, timestamp');
+        $this->createIndex('idx_rate_limits', 'rate_limits', 'group_id, user_id, timestamp');
+    }
+
+    /**
+     * Add a column if it does not already exist (best-effort, cross-driver).
+     * Used for lightweight migrations on installs created by an older schema.
+     */
+    private function addColumnIfMissing(string $table, string $column, string $definition): void {
+        try {
+            if ($this->db->getDriver() === 'sqlite') {
+                $cols = $this->db->query("PRAGMA table_info($table)")->fetchAll(\PDO::FETCH_ASSOC);
+                foreach ($cols as $col) {
+                    if (($col['name'] ?? '') === $column) {
+                        return;
+                    }
+                }
+            }
+            $this->db->exec("ALTER TABLE $table ADD COLUMN $column $definition");
+        } catch (\Throwable $e) {
+            // Column already exists (MySQL "duplicate column") or table is new — ignore.
+        }
     }
 
     private function createTable(string $name, string $columns): void {

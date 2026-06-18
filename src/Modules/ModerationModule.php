@@ -119,15 +119,13 @@ class ModerationModule implements PluginInterface {
         $window = 10; // 10 seconds
         $now = time();
 
-        // Clean old entries
-        $db->exec("DELETE FROM rate_limits WHERE timestamp < " . ($now - $window));
-
-        // Count recent messages
+        // Count recent messages from this user IN THIS GROUP only.
+        // (Bulk cleanup of expired rows is handled by the cron task.)
         $stmt = $db->prepare("
-            SELECT COUNT(*) as cnt FROM rate_limits 
-            WHERE user_id = ? AND timestamp > ?
+            SELECT COUNT(*) as cnt FROM rate_limits
+            WHERE group_id = ? AND user_id = ? AND timestamp > ?
         ");
-        $stmt->execute([$userId, $now - $window]);
+        $stmt->execute([$groupId, $userId, $now - $window]);
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (($result['cnt'] ?? 0) >= $limit) {
@@ -135,8 +133,8 @@ class ModerationModule implements PluginInterface {
         }
 
         // Log this message
-        $stmt = $db->prepare("INSERT INTO rate_limits (user_id, timestamp) VALUES (?, ?)");
-        $stmt->execute([$userId, $now]);
+        $stmt = $db->prepare("INSERT INTO rate_limits (group_id, user_id, timestamp) VALUES (?, ?, ?)");
+        $stmt->execute([$groupId, $userId, $now]);
 
         return false;
     }
