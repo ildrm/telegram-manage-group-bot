@@ -95,22 +95,24 @@ class CaptchaModule implements PluginInterface {
             
             $options = [$answer, $wrong1, $wrong2];
             shuffle($options);
-            
+
+            // The callback carries the *chosen value*, not a correct/wrong verdict.
+            // Correctness is decided server-side against the stored answer.
             $buttons = [];
             foreach ($options as $opt) {
                 $buttons[] = [
                     'text' => $opt,
-                    'callback_data' => "captcha:verify:$chatId:$userId:" . ($opt === $answer ? 'correct' : 'wrong')
+                    'callback_data' => "captcha:verify:$chatId:$userId:" . $opt
                 ];
             }
-            
+
             $keyboard = ['inline_keyboard' => [array_chunk($buttons, 2)[0] ?? []]];
             $text = "Welcome {$user['first_name']}! Please solve: <b>$a + $b = ?</b>";
         } else {
-            // Button CAPTCHA (default)
+            // Button CAPTCHA (default). Stored answer is 'verify'.
             $keyboard = [
                 'inline_keyboard' => [[
-                    ['text' => '✅ I am human', 'callback_data' => "captcha:verify:$chatId:$userId:correct"]
+                    ['text' => '✅ I am human', 'callback_data' => "captcha:verify:$chatId:$userId:verify"]
                 ]]
             ];
             $text = "Welcome {$user['first_name']}! Please verify you are human.";
@@ -150,7 +152,7 @@ class CaptchaModule implements PluginInterface {
 
         $targetChatId = (int)$parts[2];
         $targetUserId = (int)$parts[3];
-        $answer = $parts[4] ?? 'wrong';
+        $submitted = $parts[4] ?? '';
 
         // Only the target user can click
         if ($fromId !== $targetUserId) {
@@ -175,9 +177,8 @@ class CaptchaModule implements PluginInterface {
             return;
         }
 
-        // Check answer
-        $isCorrect = ($answer === 'correct' && $session['answer'] === 'verify') || 
-                     ($answer === $session['answer']);
+        // Check answer: the submitted value must match the server-stored answer.
+        $isCorrect = ($submitted !== '' && hash_equals((string)$session['answer'], (string)$submitted));
 
         if ($isCorrect) {
             // Unrestrict user

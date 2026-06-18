@@ -46,8 +46,22 @@ class WelcomeModule implements PluginInterface {
         $client = $container->get(Client::class);
         $settings = $container->get(SettingsService::class);
 
+        // Anti-Bot: auto-ban joining bot accounts (unless added by an admin).
+        // Runs independently of the welcome message setting.
+        if ($settings->isEnabled($chatId, 'antibot_enabled')) {
+            $this->enforceAntiBot($message, $chatId, $client, $container);
+        }
+
         // Check if welcome is enabled
         if (!$settings->isEnabled($chatId, 'welcome_enabled')) {
+            return;
+        }
+
+        // Avoid a duplicate greeting: when CAPTCHA is on, CaptchaModule already
+        // welcomes the user (and they're restricted until verified). The
+        // configured welcome message would otherwise be shown twice and before
+        // verification.
+        if ($settings->isEnabled($chatId, 'captcha_enabled')) {
             return;
         }
 
@@ -100,6 +114,35 @@ class WelcomeModule implements PluginInterface {
                 }
             } catch (\Exception $e) {
                 error_log("Failed to send welcome message: " . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Ban any joining bot accounts unless they were added by a group admin/owner.
+     */
+    private function enforceAntiBot(array $message, int $chatId, Client $client, Container $container): void {
+        $adderId = $message['from']['id'] ?? 0;
+        $auth = $container->get(\App\Services\AuthorizationService::class);
+
+        // Trust bots explicitly added by an admin/owner.
+        $addedByAdmin = $adderId > 0 && $auth->canManage($adderId, $chatId);
+
+        foreach ($message['new_chat_members'] as $memberData) {
+            if (!($memberData['is_bot'] ?? false)) {
+                continue;
+            }
+            if ($addedByAdmin) {
+                continue;
+            }
+            $botId = $memberData['id'] ?? 0;
+            if ($botId <= 0) {
+                continue;
+            }
+            try {
+                $client->banChatMember($chatId, $botId, null, true);
+            } catch (\Exception $e) {
+                error_log("Anti-bot ban failed for {$botId} in {$chatId}: " . $e->getMessage());
             }
         }
     }

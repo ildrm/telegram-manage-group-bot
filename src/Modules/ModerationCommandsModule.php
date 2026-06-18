@@ -89,11 +89,20 @@ class ModerationCommandsModule implements PluginInterface {
         $result = $client->banChatMember($chatId, $targetId, null, true);
         
         if ($result && ($result['ok'] ?? false)) {
-            // Record in database
-            $stmt = $db->prepare("INSERT INTO bans (group_id, user_id, banned_by, reason, banned_at) VALUES (?, ?, ?, ?, ?) 
-                                   ON DUPLICATE KEY UPDATE banned_by = VALUES(banned_by), reason = VALUES(reason), banned_at = VALUES(banned_at)");
-            $stmt->execute([$chatId, $targetId, $userId, $reason, time()]);
-            
+            // Record in database (portable upsert: bans has UNIQUE(group_id, user_id))
+            $db->upsert(
+                'bans',
+                [
+                    'group_id' => $chatId,
+                    'user_id' => $targetId,
+                    'banned_by' => $userId,
+                    'reason' => $reason,
+                    'banned_at' => time(),
+                ],
+                ['banned_by', 'reason', 'banned_at'],
+                'group_id, user_id'
+            );
+
             $client->sendMessage($chatId, "🚫 <b>User Banned</b>\n\n<b>Reason:</b> " . htmlspecialchars($reason));
         } else {
             $client->sendMessage($chatId, "❌ Failed to ban user. Make sure I have admin rights.");

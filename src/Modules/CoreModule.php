@@ -145,8 +145,16 @@ class CoreModule implements PluginInterface {
              // Just send help as new message or edit
              $this->showHelp($chatId, $client);
         } elseif (strpos($data, 'dash:manage:') === 0) {
-            $groupId = substr($data, 12);
-            $this->showGroupDashboard($chatId, $messageId, (int)$groupId, $client, $db);
+            $groupId = (int)substr($data, 12);
+
+            // Authorization: only owners/admins of the group may open its dashboard.
+            $auth = $container->get(\App\Services\AuthorizationService::class);
+            if (!$auth->canManage($userId, $groupId)) {
+                $client->answerCallbackQuery($callback['id'] ?? '', "⛔ You don't manage this group.", true);
+                return;
+            }
+
+            $this->showGroupDashboard($chatId, $messageId, $groupId, $client, $db);
         }
     }
     

@@ -1,0 +1,20 @@
+# Environment / secrets
+.env
+*.env.local
+
+# Storage
+storage/*.sqlite
+storage/*.sqlite-wal
+storage/*.sqlite-shm
+storage/database.sqlite
+storage/logs/*.log
+
+# Dependencies (uncomment if not vendoring)
+# /vendor/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
